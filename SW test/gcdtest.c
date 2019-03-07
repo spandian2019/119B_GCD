@@ -47,6 +47,7 @@
 
 /* library include files */
 #include  <limits.h>
+#include  <time.h>
 #include  <stdio.h>
 #include  <stdlib.h>
 
@@ -87,15 +88,18 @@ int  main(int narg, char *args[])
     /* no error, do the tests */
 
     /* seed the random number generator */
-    randomize();
+    srand(time(NULL));
     
     /* now do the testing */
     for (i = 0; i < test_cnt; i++)  {
 
     /* get two values to test with */
-    m = rand() + rand() + 1;    /* to make a 16-bit value */
-    n = rand() + rand() + 1;
+    m = (rand()%32768) + (rand()%32768) + 1;    /* to make a 16-bit value */
+    n = (rand()%32768) + (rand()%32768) + 1;
     
+    if (i == 0)
+        printf("%d\n", m);
+
     /* check the GCD algorithm */
     if (EuclidGCD(m, n) != GCD(m, n))  {
 

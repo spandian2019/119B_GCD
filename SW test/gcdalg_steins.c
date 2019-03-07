@@ -88,18 +88,18 @@ unsigned int  GCD(unsigned int m, unsigned int n)
 
     /* arguments are OK */
 
-    /* divide out powers of 2 from a and b until one of them is odd */
-    if ((a % 2 == 0) || (b % 2 == 0)) {
+    /* divide out powers of 2 from m and n until one of them is odd */
+    if ((m % 2 == 0) || (n % 2 == 0)) {
         k++;
-        a /= 2;
-        b /= 2;
+        m /= 2;
+        n /= 2;
     }
 
     /* start out temp variable before looping */
-    if (a % 2 == 1)
-        t = -b;
+    if (m % 2 == 1)
+        t = -n;
     else
-        t = a;
+        t = m;
 
     /* loop to compute the GCD */
     while (t != 0)  {
@@ -112,14 +112,16 @@ unsigned int  GCD(unsigned int m, unsigned int n)
             t /= 2;
 
         if (t > 0)
-            a = t;
+            m = t;
         else
-            b = -t;
+            n = -t;
+
+        t = m - n;
     }
 
     /* done computing the GCD, save the iteration count and return */
     addIterCnt(iter_cnt);
 
-    return  a * (2**k);
+    return  m * (2^k);
 
 }

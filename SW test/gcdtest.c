@@ -19,7 +19,7 @@
 
    Return Code:      If there is an error in the command line argument (the
                      number of tests) ARG_ERR_EXIT is returned, if there is a
-             failure in the testing ERROR_EXIT is returned, otherwise
+                     failure in the testing ERROR_EXIT is returned, otherwise
                      GOOD_EXIT is returned.
 
    User Interface:   The user inputs the number of tests to perform on the

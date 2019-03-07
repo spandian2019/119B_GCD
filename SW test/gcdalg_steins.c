@@ -21,6 +21,7 @@
 /* library include files */
 #include  <stdio.h>
 #include  <stdlib.h>
+#include  <math.h>
 
 /* local include files */
 #include  "gcdtest.h"
@@ -76,10 +77,14 @@
 unsigned int  GCD(unsigned int m, unsigned int n)
 {
     /* variables */
-    int           iter_cnt = 0; /* count the number of iterations */
+    int           outer_iter_cnt = 0; /* count the outer loop number of iterations */
+    int           inner_iter_cnt = 0; /* count the inner loop number of iterations */
     int           k = 0; /* number of shifts, for removing powers of 2 
                             and adding back later */
     int           t; /* loop temp variable */
+
+    int           out_m = m; /* save m to print edge cases */
+    int           out_n = n; /* save n to print edge cases */
 
     /* check to be sure neither argument is 0 */
     if ((m == 0) || (n == 0))
@@ -89,8 +94,8 @@ unsigned int  GCD(unsigned int m, unsigned int n)
     /* arguments are OK */
 
     /* divide out powers of 2 from m and n until one of them is odd */
-    if ((m % 2 == 0) || (n % 2 == 0)) {
-        k++;
+    while ((m % 2 == 0) && (n % 2 == 0)) {
+        k += 1;
         m /= 2;
         n /= 2;
     }
@@ -104,12 +109,15 @@ unsigned int  GCD(unsigned int m, unsigned int n)
     /* loop to compute the GCD */
     while (t != 0)  {
         /* an iteration of the loop */
-        iter_cnt++;
+        outer_iter_cnt+=1;
+        inner_iter_cnt = 0;
         
         /* now do the algorithm */
         
-        while (t % 2 == 0)
+        while (t % 2 == 0) {
+            inner_iter_cnt+=1;
             t /= 2;
+        }
 
         if (t > 0)
             m = t;
@@ -120,8 +128,11 @@ unsigned int  GCD(unsigned int m, unsigned int n)
     }
 
     /* done computing the GCD, save the iteration count and return */
-    addIterCnt(iter_cnt);
+    // if (inner_iter_cnt+outer_iter_cnt >= 5)
+    if ((out_n == 9 || out_m == 9) && (inner_iter_cnt+outer_iter_cnt == 6))
+        printf("%d\t%d\t%d\t%d\n", out_m, out_n, inner_iter_cnt, outer_iter_cnt);
+    addIterCnt(inner_iter_cnt+outer_iter_cnt);
 
-    return  m * (2^k);
+    return  m * (pow(2, k));
 
 }

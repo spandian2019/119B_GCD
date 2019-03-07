@@ -41,6 +41,7 @@
                         better wording.
       15 May 00  Glen George            Updated comments.
       16 May 02  Glen George            Updated comments.
+      06 Mar 19  Sundar Pandian         Updated for srand instead of randomize
 */
 
 
@@ -48,14 +49,12 @@
 /* library include files */
 #include  <limits.h>
 #include  <time.h>
+#include  <math.h>
 #include  <stdio.h>
 #include  <stdlib.h>
 
 /* local include files */
 #include  "gcdtest.h"
-
-
-
 
 int  main(int narg, char *args[])
 {
@@ -67,8 +66,8 @@ int  main(int narg, char *args[])
 
     long int      error_cnt = 0;    /* number of errors */
     long int      i;            /* general loop index */
-
-
+    int n_bits = 4;
+    long int      binary_mod = pow(2, n_bits-1);
 
     /* check the command line arguments */
     if (narg != 2)  {
@@ -94,11 +93,8 @@ int  main(int narg, char *args[])
     for (i = 0; i < test_cnt; i++)  {
 
     /* get two values to test with */
-    m = (rand()%32768) + (rand()%32768) + 1;    /* to make a 16-bit value */
-    n = (rand()%32768) + (rand()%32768) + 1;
-    
-    if (i == 0)
-        printf("%d\n", m);
+    m = (rand() % binary_mod) + (rand() % binary_mod) + 1;    /* to make a 16-bit value */
+    n = (rand() % binary_mod) + (rand() % binary_mod) + 1;
 
     /* check the GCD algorithm */
     if (EuclidGCD(m, n) != GCD(m, n))  {

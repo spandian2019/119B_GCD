@@ -119,7 +119,7 @@ unsigned int  GCD(unsigned int m, unsigned int n)
             t /= 2;
         }
 
-        if (t > 0)
+        if (t >= 0)
             m = t;
         else
             n = -t;

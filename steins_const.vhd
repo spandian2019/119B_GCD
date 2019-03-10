@@ -1,14 +1,13 @@
 -----------------------------------------------------------------------------
 --
---  Control Unit constants package
+--  GCD systolic implementation constants package
 --
---  This package defines control unit constants for supported AVR
---  instructions
+--  This package defines constants for systolic array implementation of
+--  GCD computer
 --
 --  Revision History
---      1/30/19   Sundar Pandian    initial revision
---      02/01/19  Sundar Pandian    Debugged with testbench
---      02/06/19  Sundar Pandian    Added the Mux entities
+--      3/07/19   Sundar Pandian    initial revision
+--      3/07/19   Sundar Pandian    Added constants for testing support
 --
 -----------------------------------------------------------------------------
 
@@ -21,10 +20,57 @@ package constants is
     -- USER FILLED CONSTANTS --
     ---------------------------
     constant N_BITS     : integer := 16;    -- number of bits on inputs
+                                            -- USER INPUTTED
     constant CTRSIZE    : integer := 4;     -- bit length of zero counter 
                                             --  CTRSIZE = log_2(N_BITS)
+                                            -- USER INPUTTED
 
+    ---------------------
+    -- ADDER CONSTANTS --
+    ---------------------
+    -- increments zero counter
+    constant INC_Z_CTR  : std_logic_vector(CTRSIZE-1 downto 0) := (0      => '1',
+                                                                   others => '0');
+    -- decrements zero counter (performs addition of 2s complement of 1)
+    -- 2s complement of 1 is all 1s
+    constant DEC_Z_CTR  : std_logic_vector(CTRSIZE-1 downto 0) := (others => '1');
+    -- adding in 1 with flipped B value is equivalent of performing 2s complement of B
+    constant B_NEG      : std_logic_vector(N_BITS-1 downto 0) := (0      => '1',
+                                                                  others => '0');
+    -- adding in 1 with flipped B value is equivalent of performing 2s complement of T
+    constant T_NEG      : std_logic_vector(N_BITS   downto 0) := (0      => '1',
+                                                                  others => '0');
+    -- carry in constants
+    constant CARRY_RST  : std_logic := '0';
+    constant CARRY_SET  : std_logic := '1';
 
+    ---------------------------
+    -- SUB_LOOP PE CONSTANTS --
+    ---------------------------
+    -- zero check value for subloop temp value
+    constant T_ZERO     : std_logic_vector(N_BITS downto 0) := (others => '0');
+    -- sign flag constants
+    constant SF_NEG     : std_logic := '1';
+    constant SF_POS     : std_logic := '0';
+
+    ------------------------
+    -- SHIFT PE CONSTANTS --
+    ------------------------
+    -- zero check value for zero counter
+    constant CTR_ZERO   : std_logic_vector(CTRSIZE-1 downto 0) := (others => '0');
+    -- zero check value for B operand
+    constant B_ZERO     : std_logic_vector(N_BITS-1 downto 0) := (others => '0');
+
+    ------------------------
+    -- SYSARRAY CONSTANTS --
+    ------------------------
+    -- size constants
+    -- only need to shift B-1 times
+    constant SHIFTSIZE  : integer := N_BITS-1;
+    -- steins algorithm has an efficiency of 3b for the inner subloop
+    constant SUBSIZE    : integer := 3*N_BITS;
+    -- total runtime with 2 shift blocks and an inner subloop
+    constant RUNTIME    : integer := 2*SHIFTSIZE+SUBSIZE;
 
 end package constants;
 
@@ -100,10 +146,10 @@ use ieee.numeric_std.all;
 
 entity Adder is generic ( bitsize : integer := 8); -- default width is 8-bits
     port (
-        X           : in       std_logic_vector((bitsize–1) downto 0); -- addend X
-        Y           : in       std_logic_vector((bitsize–1) downto 0); -- addend Y
+        X           : in       std_logic_vector((bitsize-1) downto 0); -- addend X
+        Y           : in       std_logic_vector((bitsize-1) downto 0); -- addend Y
         Ci          : in       std_logic; -- carry in
-        S           : out      std_logic_vector((bitsize–1) downto 0); -- sum out
+        S           : out      std_logic_vector((bitsize-1) downto 0); -- sum out
         Co          : out      std_logic -- carry out
       );
 end Adder;
@@ -120,15 +166,15 @@ architecture archAdder of Adder is
           );
     end component;
 
-    signal carry : bit_vector(bitsize downto 0); -- intermediate carries
+    signal carry : std_logic_vector(bitsize downto 0); -- intermediate carries
 
 begin
 
     carry(0) <= Ci;                            -- put carry in into our carry vector
 
-    Adders: for i in bitsize generate          -- generate bitsize full adders
+    Adders: for i in 0 to bitsize-1 generate          -- generate bitsize full adders
     begin
-        FAx: FullAdder port map (X(i), Y(i), carry(i), S(i), carry(i + 1));
+        FAx: FullAdder port map (X(i), Y(i), carry(i), carry(i + 1), S(i));
     end generate;
 
     Co <= carry(bitsize);                      -- carry out is from carry vector
